@@ -107,11 +107,14 @@
             <template #item="{ element }">
               <div :card="element" class="bg-green-400 px-5 m-2 rounded-md">
                 {{ element.title }}
-                <span
-                  class="float-right cursor-pointer"
-                  @click="deleteTask(element.id, this.backendArr)"
-                  >X</span
-                >
+                <div class="float-right">
+                  <span class="cursor-pointer mr-1 text-sm">edit</span>
+                  <span
+                    class="float-right cursor-pointer"
+                    @click="deleteTask(element.id, this.backendArr)"
+                    >X</span
+                  >
+                </div>
               </div>
             </template>
           </draggable>
@@ -172,6 +175,7 @@ export default {
       } else {
         this.thirdColumn = this.thirdColumn.filter((el) => el.id !== id);
       }
+      console.log(id + " таска удалена");
     },
   },
 };

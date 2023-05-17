@@ -15,8 +15,8 @@ export default {
   name: "App",
   components: {
     // SimpleCounter,
-    MyKanbanVue,
     // MyTodo,
+    MyKanbanVue,
   },
   data() {
     return {
@@ -47,6 +47,7 @@ export default {
   display: flex;
   justify-content: center;
   background-color: #e1e1e1;
+  height: 100vh;
 }
 
 input {
