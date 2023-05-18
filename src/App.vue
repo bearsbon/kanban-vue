@@ -2,7 +2,7 @@
   <div class="wrapper">
     <!-- <div><SimpleCounter /></div>
     <div><MyTodo /></div> -->
-    <div><MyKanbanVue :backendArr="this.backendArr" /></div>
+    <div><MyKanbanVue /></div>
   </div>
 </template>
 
@@ -17,17 +17,6 @@ export default {
     // SimpleCounter,
     // MyTodo,
     MyKanbanVue,
-  },
-  data() {
-    return {
-      backendArr: [],
-    };
-  },
-  methods: {},
-  async created() {
-    fetch("http://127.0.0.1:8000/tasks/")
-      .then((res) => res.json())
-      .then((data) => (this.backendArr = [...data]));
   },
 };
 </script>
@@ -47,7 +36,7 @@ export default {
   display: flex;
   justify-content: center;
   background-color: #e1e1e1;
-  height: 100vh;
+  height: 100%;
 }
 
 input {

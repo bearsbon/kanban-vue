@@ -16,21 +16,29 @@
         </h3>
         <div class="bg-white p-3 rounded-xl">
           <draggable
+            id="todoColumn"
             class="column"
-            :list="firstColumn"
+            :list="todoColumn"
             group="cards"
             item-key="id"
             :animation="200"
             ghost-class="ghost-card"
+            @change="patch($event, 4)"
           >
             <template #item="{ element }">
-              <div :card="element" class="bg-green-400 px-5 m-2 rounded-md">
+              <div
+                :card="element"
+                class="bg-green-400 px-5 py-2 m-2 rounded-md"
+              >
                 {{ element.title }}
-                <span
-                  class="float-right cursor-pointer"
-                  @click="deleteTask(element.id, this.firstColumn)"
-                  >X</span
-                >
+                <div class="float-right">
+                  <span class="cursor-pointer mr-1 text-sm">edit</span>
+                  <span
+                    class="float-right cursor-pointer"
+                    @click="deleteB(element.id, this.todoColumn)"
+                    >X</span
+                  >
+                </div>
               </div>
             </template>
           </draggable>
@@ -43,21 +51,29 @@
         </h3>
         <div class="bg-white p-3 rounded-xl">
           <draggable
+            id="inProcessColumn"
             class="column"
-            :list="secondColumn"
+            :list="inProcessColumn"
             group="cards"
             item-key="id"
             :animation="200"
             ghost-class="ghost-card"
+            @change="patch($event, 5)"
           >
             <template #item="{ element }">
-              <div :card="element" class="bg-green-400 px-5 m-2 rounded-md">
+              <div
+                :card="element"
+                class="bg-green-400 px-5 py-2 m-2 rounded-md"
+              >
                 {{ element.title }}
-                <span
-                  class="float-right cursor-pointer"
-                  @click="deleteTask(element.id, this.secondColumn)"
-                  >X</span
-                >
+                <div class="float-right">
+                  <span class="cursor-pointer mr-1 text-sm">edit</span>
+                  <span
+                    class="float-right cursor-pointer"
+                    @click="deleteB(element.id, this.inProcessColumn)"
+                    >X</span
+                  >
+                </div>
               </div>
             </template>
           </draggable>
@@ -70,48 +86,26 @@
         </h3>
         <div class="bg-white p-3 rounded-xl">
           <draggable
+            id="doneColumn"
             class="column"
-            :list="thirdColumn"
+            :list="doneColumn"
             group="cards"
             item-key="id"
             :animation="200"
             ghost-class="ghost-card"
+            @change="patch($event, 6, this.doneColumn)"
           >
             <template #item="{ element }">
-              <div :card="element" class="bg-green-400 px-5 m-2 rounded-md">
-                {{ element.title }}
-                <span
-                  class="float-right cursor-pointer"
-                  @click="deleteTask(element.id, this.thirdColumn)"
-                  >X</span
-                >
-              </div>
-            </template>
-          </draggable>
-        </div>
-      </div>
-
-      <div class="min-h-screen overflow-x-scroll mx-5">
-        <h3 class="text-gray-700 font-semibold font-sans tracking-wide text-xl">
-          BackendArr
-        </h3>
-        <div class="bg-white p-3 rounded-xl">
-          <draggable
-            class="column"
-            :list="backendArr"
-            group="cards"
-            item-key="id"
-            :animation="200"
-            ghost-class="ghost-card"
-          >
-            <template #item="{ element }">
-              <div :card="element" class="bg-green-400 px-5 m-2 rounded-md">
+              <div
+                :card="element"
+                class="bg-green-400 px-5 py-2 m-2 rounded-md"
+              >
                 {{ element.title }}
                 <div class="float-right">
                   <span class="cursor-pointer mr-1 text-sm">edit</span>
                   <span
                     class="float-right cursor-pointer"
-                    @click="deleteTask(element.id, this.backendArr)"
+                    @click="deleteB(element.id, this.doneColumn)"
                     >X</span
                   >
                 </div>
@@ -126,40 +120,35 @@
 
 <script>
 import draggable from "vuedraggable";
+import axios from "axios";
+import { toRaw } from "vue";
 
 export default {
   name: "App",
-  props: ["backendArr"],
   components: {
     draggable,
   },
   data() {
     return {
       newTask: "",
-      firstColumn: [
-        { id: Math.random(10), title: "aaa" },
-        { id: Math.random(10), title: "qwe" },
-        { id: Math.random(10), title: "www" },
-      ],
-      secondColumn: [
-        { id: Math.random(10), title: "weqeqweq" },
-        { id: Math.random(10), title: "sdmglksng" },
-      ],
-      thirdColumn: [
-        { id: Math.random(10), title: "1312313213" },
-        { id: Math.random(10), title: "1231321231231" },
-      ],
-      test: [],
+      todoColumn: [],
+      inProcessColumn: [],
+      doneColumn: [],
     };
   },
 
   methods: {
-    addTask() {
+    async addTask() {
       if (this.newTask) {
-        this.firstColumn.push({
-          id: Math.random(10),
+        let task = {
+          id: 0,
           title: this.newTask,
-        });
+          column_id: 4,
+          index: this.todoColumn.length,
+        };
+        const res = await axios.post(`http://127.0.0.1:8000/tasks/`, task);
+        task.id = res.data.id;
+        this.todoColumn.push(task);
         this.newTask = "";
       }
       console.log("таска добавлена");
@@ -167,16 +156,48 @@ export default {
     changeInput(e) {
       this.$emit("changeInput", e.target.value);
     },
-    deleteTask(id, list) {
-      if (list === this.firstColumn) {
-        this.firstColumn = this.firstColumn.filter((el) => el.id !== id);
-      } else if (list === this.secondColumn) {
-        this.secondColumn = this.secondColumn.filter((el) => el.id !== id);
-      } else {
-        this.thirdColumn = this.thirdColumn.filter((el) => el.id !== id);
-      }
-      console.log(id + " таска удалена");
+    deleteB(id, arr) {
+      axios.delete(`http://127.0.0.1:8000/tasks/${id}`);
+      if (arr === this.todoColumn)
+        this.todoColumn = this.todoColumn.filter((el) => el.id !== id);
+      if (arr === this.inProcessColumn)
+        this.inProcessColumn = this.inProcessColumn.filter(
+          (el) => el.id !== id
+        );
+      if (arr === this.doneColumn)
+        this.doneColumn = this.doneColumn.filter((el) => el.id !== id);
     },
+    patch(event, b) {
+      let rawData;
+      let newIndex;
+      const raw = toRaw(event);
+      if (raw.added) {
+        rawData = toRaw(raw.added.element);
+        newIndex = raw.added.newIndex;
+      }
+      if (raw.moved) {
+        rawData = toRaw(raw.moved.element);
+        newIndex = raw.moved.newIndex;
+      }
+      if (rawData)
+        axios.patch(`http://127.0.0.1:8000/tasks/${rawData.id}`, {
+          ...rawData,
+          column_id: b,
+          index: newIndex,
+        });
+    },
+    log(event) {
+      console.log(event);
+    },
+  },
+  async created() {
+    axios.get("http://127.0.0.1:8000/tasks/").then((res) => {
+      res.data.map((el) => {
+        if (el.column_id === 4) this.todoColumn.splice(el.index, 0, el);
+        if (el.column_id === 5) this.inProcessColumn.splice(el.index, 0, el);
+        if (el.column_id === 6) this.doneColumn.splice(el.index, 0, el);
+      });
+    });
   },
 };
 </script>
